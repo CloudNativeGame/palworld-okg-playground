@@ -2,21 +2,23 @@ package cluster
 
 import (
 	"github.com/CloudNativeGame/palworld-okg-playground/cloudprovider"
+	"github.com/CloudNativeGame/palworld-okg-playground/cloudprovider/alibabacloud"
 	"k8s.io/client-go/rest"
 )
 
-func NewClusterManager() *ClusterManager {
+func NewClusterManager() (*ClusterManager, error) {
+	defaultProvider, err := alibabacloud.CreateAlibabaCloudManager(&alibabacloud.CloudConfig{})
 	return &ClusterManager{
-		provider: nil,
-	}
+		provider: defaultProvider,
+	}, err
 }
 
 type ClusterManager struct {
 	provider cloudprovider.CloudProvider
 }
 
-func (cm *ClusterManager) CreateCluster() (cloudprovider.KubernetesCluster, error) {
-	return cm.provider.CreateCluster(nil)
+func (cm *ClusterManager) CreateCluster(options cloudprovider.ClusterOptions) (cloudprovider.KubernetesCluster, error) {
+	return cm.provider.CreateCluster(options)
 }
 
 func (cm *ClusterManager) DeleteCluster() error {

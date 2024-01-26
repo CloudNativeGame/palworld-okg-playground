@@ -10,6 +10,7 @@ import (
 
 	"go.starlark.net/internal/compile"
 	"go.starlark.net/internal/spell"
+	"go.starlark.net/resolve"
 	"go.starlark.net/syntax"
 )
 
@@ -23,19 +24,19 @@ func (fn *Function) CallInternal(thread *Thread, args Tuple, kwargs []Tuple) (Va
 	// Postcondition: args is not mutated. This is stricter than required by Callable,
 	// but allows CALL to avoid a copy.
 
-	f := fn.funcode
-	if !f.Prog.Recursion {
+	if !resolve.AllowRecursion {
 		// detect recursion
 		for _, fr := range thread.stack[:len(thread.stack)-1] {
 			// We look for the same function code,
 			// not function value, otherwise the user could
 			// defeat the check by writing the Y combinator.
-			if frfn, ok := fr.Callable().(*Function); ok && frfn.funcode == f {
+			if frfn, ok := fr.Callable().(*Function); ok && frfn.funcode == fn.funcode {
 				return nil, fmt.Errorf("function %s called recursively", fn.Name())
 			}
 		}
 	}
 
+	f := fn.funcode
 	fr := thread.frameAt(0)
 
 	// Allocate space for stack and locals.

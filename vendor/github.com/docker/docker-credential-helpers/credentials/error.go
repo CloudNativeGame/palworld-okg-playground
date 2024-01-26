@@ -1,7 +1,5 @@
 package credentials
 
-import "errors"
-
 const (
 	// ErrCredentialsNotFound standardizes the not found error, so every helper returns
 	// the same message and docker can handle it properly.
@@ -23,11 +21,6 @@ func (errCredentialsNotFound) Error() string {
 	return errCredentialsNotFoundMessage
 }
 
-// NotFound implements the [ErrNotFound][errdefs.ErrNotFound] interface.
-//
-// [errdefs.ErrNotFound]: https://pkg.go.dev/github.com/docker/docker@v24.0.1+incompatible/errdefs#ErrNotFound
-func (errCredentialsNotFound) NotFound() {}
-
 // NewErrCredentialsNotFound creates a new error
 // for when the credentials are not in the store.
 func NewErrCredentialsNotFound() error {
@@ -37,8 +30,8 @@ func NewErrCredentialsNotFound() error {
 // IsErrCredentialsNotFound returns true if the error
 // was caused by not having a set of credentials in a store.
 func IsErrCredentialsNotFound(err error) bool {
-	var target errCredentialsNotFound
-	return errors.As(err, &target)
+	_, ok := err.(errCredentialsNotFound)
+	return ok
 }
 
 // IsErrCredentialsNotFoundMessage returns true if the error
@@ -60,12 +53,6 @@ func (errCredentialsMissingServerURL) Error() string {
 	return errCredentialsMissingServerURLMessage
 }
 
-// InvalidParameter implements the [ErrInvalidParameter][errdefs.ErrInvalidParameter]
-// interface.
-//
-// [errdefs.ErrInvalidParameter]: https://pkg.go.dev/github.com/docker/docker@v24.0.1+incompatible/errdefs#ErrInvalidParameter
-func (errCredentialsMissingServerURL) InvalidParameter() {}
-
 // errCredentialsMissingUsername represents an error raised
 // when the credentials object has no username or when no
 // username is provided to a credentials operation requiring
@@ -75,12 +62,6 @@ type errCredentialsMissingUsername struct{}
 func (errCredentialsMissingUsername) Error() string {
 	return errCredentialsMissingUsernameMessage
 }
-
-// InvalidParameter implements the [ErrInvalidParameter][errdefs.ErrInvalidParameter]
-// interface.
-//
-// [errdefs.ErrInvalidParameter]: https://pkg.go.dev/github.com/docker/docker@v24.0.1+incompatible/errdefs#ErrInvalidParameter
-func (errCredentialsMissingUsername) InvalidParameter() {}
 
 // NewErrCredentialsMissingServerURL creates a new error for
 // errCredentialsMissingServerURL.
@@ -97,8 +78,8 @@ func NewErrCredentialsMissingUsername() error {
 // IsCredentialsMissingServerURL returns true if the error
 // was an errCredentialsMissingServerURL.
 func IsCredentialsMissingServerURL(err error) bool {
-	var target errCredentialsMissingServerURL
-	return errors.As(err, &target)
+	_, ok := err.(errCredentialsMissingServerURL)
+	return ok
 }
 
 // IsCredentialsMissingServerURLMessage checks for an
@@ -110,8 +91,8 @@ func IsCredentialsMissingServerURLMessage(err string) bool {
 // IsCredentialsMissingUsername returns true if the error
 // was an errCredentialsMissingUsername.
 func IsCredentialsMissingUsername(err error) bool {
-	var target errCredentialsMissingUsername
-	return errors.As(err, &target)
+	_, ok := err.(errCredentialsMissingUsername)
+	return ok
 }
 
 // IsCredentialsMissingUsernameMessage checks for an

@@ -101,11 +101,11 @@ func StartProfile(w io.Writer) error {
 	return nil
 }
 
-// StopProfile stops the profiler started by a prior call to
+// StopProfiler stops the profiler started by a prior call to
 // StartProfile and finalizes the profile. It returns an error if the
 // profile could not be completed.
 //
-// StopProfile must not be called concurrently with Starlark execution.
+// StopProfiler must not be called concurrently with Starlark execution.
 func StopProfile() error {
 	// Terminate the profiler goroutine and get its result.
 	close(profiler.events)

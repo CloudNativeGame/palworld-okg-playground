@@ -23,6 +23,7 @@
 //
 // Operands, logically uint32s, are encoded using little-endian 7-bit
 // varints, the top bit indicating that more bytes follow.
+//
 package compile // import "go.starlark.net/internal/compile"
 
 import (
@@ -46,7 +47,7 @@ var Disassemble = false
 const debug = false // make code generation verbose, for debugging the compiler
 
 // Increment this to force recompilation of saved bytecode files.
-const Version = 14
+const Version = 13
 
 type Opcode uint8
 
@@ -316,7 +317,6 @@ type Program struct {
 	Functions []*Funcode
 	Globals   []Binding // for error messages and tracing
 	Toplevel  *Funcode  // module initialization function
-	Recursion bool      // disable recursion check for functions in this file
 }
 
 // The type of a bytes literal value, to distinguish from text string.
@@ -486,20 +486,17 @@ func bindings(bindings []*resolve.Binding) []Binding {
 }
 
 // Expr compiles an expression to a program whose toplevel function evaluates it.
-// The options must be consistent with those used when parsing expr.
-func Expr(opts *syntax.FileOptions, expr syntax.Expr, name string, locals []*resolve.Binding) *Program {
+func Expr(expr syntax.Expr, name string, locals []*resolve.Binding) *Program {
 	pos := syntax.Start(expr)
 	stmts := []syntax.Stmt{&syntax.ReturnStmt{Result: expr}}
-	return File(opts, stmts, pos, name, locals, nil)
+	return File(stmts, pos, name, locals, nil)
 }
 
 // File compiles the statements of a file into a program.
-// The options must be consistent with those used when parsing stmts.
-func File(opts *syntax.FileOptions, stmts []syntax.Stmt, pos syntax.Position, name string, locals, globals []*resolve.Binding) *Program {
+func File(stmts []syntax.Stmt, pos syntax.Position, name string, locals, globals []*resolve.Binding) *Program {
 	pcomp := &pcomp{
 		prog: &Program{
-			Globals:   bindings(globals),
-			Recursion: opts.Recursion,
+			Globals: bindings(globals),
 		},
 		names:     make(map[string]uint32),
 		constants: make(map[interface{}]uint32),
