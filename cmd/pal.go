@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Short: "pal is a fast command to create and manage PalWorld game servers",
 	Long:  "pal is a fast command to create and manage PalWorld game servers",
 
-	Run: func(cmd *cobra.Command, args []string) {
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Do Stuff Here
 		envFile := NewEnvFile()
 		if envFile.Exists() {

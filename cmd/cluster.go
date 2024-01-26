@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"context"
-	"github.com/CloudNativeGame/palworld-okg-playground/pkg"
+	"github.com/CloudNativeGame/palworld-okg-playground/pkg/cluster"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +11,7 @@ var clusterCmd = &cobra.Command{
 	Short: "Manage PalWorld game clusters",
 	Long:  `Manage PalWorld game clusters`,
 	Run: func(cmd *cobra.Command, args []string) {
-		clusterManager := pkg.NewClusterManager()
+		clusterManager := cluster.NewClusterManager()
 		ctx := context.WithValue(cmd.Context(), "clusterManager", clusterManager)
 		cmd.SetContext(ctx)
 		return
@@ -35,7 +35,7 @@ var deleteClusterCmd = &cobra.Command{
 	Short: "Delete a PalWorld gameserver cluster",
 	Long:  "Delete a PalWorld gameserver cluster",
 	Run: func(cmd *cobra.Command, args []string) {
-		clusterManager := cmd.Context().Value("clusterManager").(*pkg.ClusterManager)
+		clusterManager := cmd.Context().Value("clusterManager").(*cluster.ClusterManager)
 		clusterManager.DeleteCluster()
 		return
 	},
