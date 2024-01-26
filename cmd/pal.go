@@ -10,6 +10,7 @@ import (
 func init() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.AddCommand(clusterCmd)
+	rootCmd.AddCommand(createClusterCmd)
 	rootCmd.AddCommand(gameserverCmd)
 	rootCmd.AddCommand(playerCmd)
 }
