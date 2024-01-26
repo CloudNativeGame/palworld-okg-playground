@@ -3,7 +3,7 @@ package cmd
 import (
 	"context"
 	"github.com/CloudNativeGame/palworld-okg-playground/cloudprovider/alibabacloud"
-	"github.com/CloudNativeGame/palworld-okg-playground/pkg"
+	pkg "github.com/CloudNativeGame/palworld-okg-playground/pkg/cluster"
 	"github.com/spf13/cobra"
 	"k8s.io/klog/v2"
 	"strings"
