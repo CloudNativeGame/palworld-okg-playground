@@ -26,6 +26,9 @@ type openAPIServiceImpl struct {
 }
 
 type vpcService interface {
+	CreateVpc(request *vpc.CreateVpcRequest) (response *vpc.CreateVpcResponse, err error)
+	DescribeZones(request *vpc.DescribeZonesRequest) (response *vpc.DescribeZonesResponse, err error)
+	CreateVSwitch(request *vpc.CreateVSwitchRequest) (response *vpc.CreateVSwitchResponse, err error)
 	DescribeVSwitches(req *vpc.DescribeVSwitchesRequest) (*vpc.DescribeVSwitchesResponse, error)
 }
 
@@ -78,42 +81,42 @@ func (openAPI *openAPIServiceImpl) refreshClient() (err error) {
 	//	endpoints.AddEndpointMapping(region, "Vpc", fmt.Sprintf("vpc-vpc.%s.aliyuncs.com", region))
 	//	endpoints.AddEndpointMapping(region, "Ack", fmt.Sprintf("cs.%s.aliyuncs.com", region))
 	//}
-	
-		accessKeyId := cfg.AccessKeyID
-		accessKeySecret := cfg.AccessKeySecret
-		config := &apiconf.Config{
-			AccessKeyId:     &accessKeyId,
-			AccessKeySecret: &accessKeySecret,
-			RegionId:        &region,
-		}
-		//essClient, err := ess.NewClientWithAccessKey(region, accessKeyId, accessKeySecret)
-		//if err != nil {
-		//	klog.Errorf("failed to create ess client,Because of %s", err.Error())
-		//	return err
-		//}
-		//openAPI.essService = &essServiceImpl{essClient}
 
-		//ecsClient, err := ecs.NewClientWithAccessKey(region, accessKeyId, accessKeySecret)
-		//if err != nil {
-		//	klog.Errorf("failed to create ecs client,Because of %s", err.Error())
-		//	return err
-		//}
-		//openAPI.ecsService = &ecsServiceImpl{ecsClient}
+	accessKeyId := cfg.AccessKeyID
+	accessKeySecret := cfg.AccessKeySecret
+	config := &apiconf.Config{
+		AccessKeyId:     &accessKeyId,
+		AccessKeySecret: &accessKeySecret,
+		RegionId:        &region,
+	}
+	//essClient, err := ess.NewClientWithAccessKey(region, accessKeyId, accessKeySecret)
+	//if err != nil {
+	//	klog.Errorf("failed to create ess client,Because of %s", err.Error())
+	//	return err
+	//}
+	//openAPI.essService = &essServiceImpl{essClient}
 
-		vpcClient, err := vpc.NewClientWithAccessKey(region, accessKeyId, accessKeySecret)
-		if err != nil {
-			klog.Errorf("failed to create vpc client,Because of %s", err.Error())
-			return err
-		}
-		openAPI.vpcService = &vpcServiceImpl{vpcClient}
+	//ecsClient, err := ecs.NewClientWithAccessKey(region, accessKeyId, accessKeySecret)
+	//if err != nil {
+	//	klog.Errorf("failed to create ecs client,Because of %s", err.Error())
+	//	return err
+	//}
+	//openAPI.ecsService = &ecsServiceImpl{ecsClient}
 
-		csClient, err := cs.NewClient(config)
-		if err != nil {
-			klog.Errorf("failed to create ack client,Because of %s", err.Error())
-			return err
-		}
-		openAPI.ackService = &ackServiceImpl{csClient}
-	
+	vpcClient, err := vpc.NewClientWithAccessKey(region, accessKeyId, accessKeySecret)
+	if err != nil {
+		klog.Errorf("failed to create vpc client,Because of %s", err.Error())
+		return err
+	}
+	openAPI.vpcService = &vpcServiceImpl{vpcClient}
+
+	csClient, err := cs.NewClient(config)
+	if err != nil {
+		klog.Errorf("failed to create ack client,Because of %s", err.Error())
+		return err
+	}
+	openAPI.ackService = &ackServiceImpl{csClient}
+
 	return nil
 }
 

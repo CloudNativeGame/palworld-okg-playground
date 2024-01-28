@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"github.com/CloudNativeGame/palworld-okg-playground/cloudprovider"
 	cs "github.com/alibabacloud-go/cs-20151215/v4/client"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	"strings"
+	"time"
 )
 
 // const DefaultCreateClusterConfig = `{"name":"test-create","cluster_type":"ManagedKubernetes","disable_rollback":true,"timeout_mins":60,"kubernetes_version":"1.28.3-aliyun.1","region_id":"cn-hangzhou","snat_entry":true,"cloud_monitor_flags":true,"endpoint_public_access":true,"deletion_protection":true,"proxy_mode":"ipvs","cis_enable_risk_check":true,"tags":[],"timezone":"Asia/Shanghai","addons":[{"name":"security-inspector"},{"name":"terway-eniip","config":"{\"IPVlan\":\"false\",\"NetworkPolicy\":\"false\",\"ENITrunking\":\"false\"}"},{"name":"csi-plugin"},{"name":"csi-provisioner"},{"name":"storage-operator","config":"{\"CnfsOssEnable\":\"false\",\"CnfsNasEnable\":\"true\"}"},{"name":"logtail-ds","config":"{\"IngressDashboardEnabled\":\"true\"}"},{"name":"ack-node-problem-detector","config":"{\"sls_project_name\":\"\"}"},{"name":"nginx-ingress-controller","config":"{\"IngressSlbNetworkType\":\"internet\",\"IngressSlbSpec\":\"slb.s2.small\"}"},{"name":"ack-node-local-dns"},{"name":"arms-prometheus"},{"name":"alicloud-monitor-controller","config":"{\"group_contact_ids\":\"[41399]\"}"}],"cluster_spec":"ack.pro.small","os_type":"Linux","platform":"AliyunLinux","image_type":"AliyunLinux3","pod_vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"],"runtime":{"name":"containerd","version":"1.6.20"},"charge_type":"PostPaid","vpcid":"vpc-bp1qoxk37f4wgf59e2avn","service_cidr":"172.16.0.0/16","vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"],"ip_stack":"ipv4","key_pair":"packer_64899245-d623-9e4b-42ee-33ee5a81f84f","logging_type":"SLS","cpu_policy":"none","service_account_issuer":"https://kubernetes.default.svc","api_audiences":"https://kubernetes.default.svc","is_enterprise_security_group":true,"controlplane_log_ttl":"30","controlplane_log_components":["apiserver","kcm","scheduler","ccm","controlplane-events","alb"],"nodepools":[{"nodepool_info":{"name":"default-nodepool"},"scaling_group":{"vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"],"system_disk_category":"cloud_essd","system_disk_size":120,"system_disk_performance_level":"PL0","system_disk_encrypted":false,"data_disks":[],"instance_types":["ecs.c6.xlarge"],"tags":[],"instance_charge_type":"PostPaid","soc_enabled":false,"cis_enabled":false,"key_pair":"packer_64899245-d623-9e4b-42ee-33ee5a81f84f","login_as_non_root":false,"security_group_ids":[],"platform":"AliyunLinux","image_id":"aliyun_3_x64_20G_alibase_20230727.vhd","image_type":"AliyunLinux3","desired_size":3,"rds_instances":[],"multi_az_policy":"BALANCE"},"kubernetes_config":{"cpu_policy":"none","cms_enabled":true,"unschedulable":false,"runtime":"containerd","runtime_version":"1.6.20"}}],"num_of_nodes":0}`
-const DefaultCreateClusterConfig = `{"addons":[{"name":"ack-goatscaler"},{"name":"terway-eniip","config":"{\"IPVlan\":\"false\",\"NetworkPolicy\":\"false\",\"ENITrunking\":\"false\"}"}],"api_audiences":"https://kubernetes.default.svc","charge_type":"PostPaid","cloud_monitor_flags":true,"cluster_spec":"ack.pro.small","cluster_type":"ManagedKubernetes","controlplane_log_components":["apiserver","kcm","scheduler","ccm","controlplane-events","alb"],"controlplane_log_ttl":"30","cpu_policy":"none","deletion_protection":true,"disable_rollback":true,"endpoint_public_access":true,"image_type":"AliyunLinux3","ip_stack":"ipv4","is_enterprise_security_group":true,"kubernetes_version":"1.28.3-aliyun.1","logging_type":"SLS","name":"test-create0126","nodepools":[{"kubernetes_config":{"cms_enabled":true,"cpu_policy":"none","runtime":"containerd","runtime_version":"1.6.20"},"nodepool_info":{"name":"default-nodepool"},"scaling_group":{"image_id":"aliyun_3_x64_20G_alibase_20230727.vhd","image_type":"AliyunLinux3","instance_charge_type":"PostPaid","instance_types":["ecs.c6.xlarge"],"multi_az_policy":"BALANCE","platform":"AliyunLinux","system_disk_category":"cloud_essd","system_disk_performance_level":"PL0","system_disk_size":120,"vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"]},"auto_scaling":{"enable":true,"max_instances":10,"min_instances":3}}],"num_of_nodes":0,"os_type":"Linux","platform":"AliyunLinux","pod_vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"],"proxy_mode":"ipvs","region_id":"cn-hangzhou","runtime":{"name":"containerd","version":"1.6.20"},"service_account_issuer":"https://kubernetes.default.svc","service_cidr":"172.16.0.0/16","snat_entry":true,"timeout_mins":60,"timezone":"Asia/Shanghai","vpcid":"vpc-bp1qoxk37f4wgf59e2avn","service_cidr":"172.16.0.0/21","vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"]}`
+const DefaultCreateClusterConfig = `{"addons":[{"name":"ack-goatscaler"},{"name":"terway-eniip","config":"{\"IPVlan\":\"false\",\"NetworkPolicy\":\"false\",\"ENITrunking\":\"false\"}"}],"api_audiences":"https://kubernetes.default.svc","charge_type":"PostPaid","cloud_monitor_flags":true,"cluster_spec":"ack.pro.small","cluster_type":"ManagedKubernetes","controlplane_log_components":["apiserver","kcm","scheduler","ccm","controlplane-events","alb"],"controlplane_log_ttl":"30","cpu_policy":"none","deletion_protection":true,"disable_rollback":true,"endpoint_public_access":true,"image_type":"AliyunLinux3","ip_stack":"ipv4","is_enterprise_security_group":true,"kubernetes_version":"1.28.3-aliyun.1","logging_type":"SLS","name":"test-create0126","nodepools":[{"kubernetes_config":{"cms_enabled":true,"cpu_policy":"none","runtime":"containerd","runtime_version":"1.6.20"},"nodepool_info":{"name":"default-nodepool"},"scaling_group":{"image_id":"aliyun_3_x64_20G_alibase_20230727.vhd","image_type":"AliyunLinux3","instance_charge_type":"PostPaid","instance_types":["ecs.c6.xlarge"],"multi_az_policy":"BALANCE","platform":"AliyunLinux","system_disk_category":"cloud_essd","system_disk_performance_level":"PL0","system_disk_size":120,"vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"]},"auto_scaling":{"enable":true,"max_instances":10,"min_instances":3}}],"num_of_nodes":0,"os_type":"Linux","platform":"AliyunLinux","pod_vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"],"proxy_mode":"ipvs","region_id":"cn-hangzhou","runtime":{"name":"containerd","version":"1.6.20"},"service_account_issuer":"https://kubernetes.default.svc","service_cidr":"172.16.0.0/16","snat_entry":false,"timeout_mins":60,"timezone":"Asia/Shanghai","vpcid":"vpc-bp1qoxk37f4wgf59e2avn","service_cidr":"172.16.0.0/21","vswitch_ids":["vsw-bp1njm4435ly60z7adj0j"]}`
 
 // "github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 
@@ -101,9 +103,6 @@ func (am *AlibabaCloudManager) initCreateClusterConfig(opts cloudprovider.Cluste
 	}
 	if opts != nil {
 		options := opts.Options()
-		if v, ok := options["vpc_id"]; ok && len(v) > 0 {
-			def2.Vpcid = &v
-		}
 		if v, ok := options["cluster_type"]; ok {
 			def2.ClusterType = &v
 		}
@@ -113,15 +112,41 @@ func (am *AlibabaCloudManager) initCreateClusterConfig(opts cloudprovider.Cluste
 		if v, ok := options["region_id"]; ok {
 			def2.RegionId = &v
 		}
-		if v, ok := options["vswitch_ids"]; ok && len(v) > 0 {
-			ids := []*string{}
-			for _, id := range strings.Split(v, ",") {
-				id = strings.Trim(id, " ")
-				if id != "" {
-					ids = append(ids, &id)
+
+		if v, ok := options["vpc_id"]; ok && len(v) > 0 {
+			def2.Vpcid = &v
+			if v, ok := options["vswitch_ids"]; ok && len(v) > 0 {
+				ids := []*string{}
+				for _, id := range strings.Split(v, ",") {
+					id = strings.Trim(id, " ")
+					if id != "" {
+						ids = append(ids, &id)
+					}
 				}
+				def2.VswitchIds = ids
 			}
-			def2.VswitchIds = ids
+		} else {
+			// creat vpc id
+			vpcId, err := am.CreateVpc(*(def2.RegionId))
+			if err != nil {
+				return nil
+			}
+			def2.SetVpcid(vpcId)
+			klog.Infof("vpc id %s is setted", vpcId)
+			// create vsw
+			vswids, err := am.CreateVswitched(vpcId, *(def2.RegionId))
+			if err != nil {
+				return nil
+			}
+			def2.SetVswitchIds(vswids)
+			def2.PodVswitchIds = vswids
+			klog.Infof("vsw ids %d is setted", len(vswids))
+			//def2.VswitchIds = vswids
+		}
+
+		// nodepools
+		for _, np := range def2.Nodepools {
+			np.ScalingGroup.VswitchIds = def2.VswitchIds
 		}
 	}
 
@@ -139,8 +164,81 @@ func (am *AlibabaCloudManager) initCreateClusterConfig(opts cloudprovider.Cluste
 	//}
 }
 
+func (am *AlibabaCloudManager) CreateVpc(regionId string) (string, error) {
+	klog.Infof("Start to create vpc in %s", regionId)
+	req := vpc.CreateCreateVpcRequest()
+	req.RegionId = regionId
+	req.CidrBlock = "192.168.0.0/16"
+	req.VpcName = "Pal-Vpc"
+	resp, err := am.openAPIService.CreateVpc(req)
+	if err != nil {
+		return "", err
+	}
+	if resp == nil || resp.VpcId == "" {
+		return "", fmt.Errorf("failed to create vpc, as empty resp")
+	}
+	klog.Infof("Succeed to create vpc in %s id %s", regionId, resp.VpcId)
+	return resp.VpcId, nil
+}
+
+func (am *AlibabaCloudManager) CreateVswitched(vpcId string, regionId string) ([]*string, error) {
+	// describe zone
+	zoneReq := vpc.CreateDescribeZonesRequest()
+	zoneReq.RegionId = regionId
+	zoneResp, err := am.DescribeZones(zoneReq)
+	if err != nil {
+		return nil, err
+	}
+	if zoneResp == nil {
+		return nil, fmt.Errorf("failed to create vswitches, as empty zone resp")
+	}
+	if len(zoneResp.Zones.Zone) == 0 {
+		return nil, fmt.Errorf("failed to create vswitches, as empty zones")
+	}
+	vswIds := []*string{}
+	time.Sleep(6 * time.Second)
+	for key, zone := range zoneResp.Zones.Zone {
+		if zone.ZoneType != "AvailabilityZone" {
+			continue
+		}
+		// not support NatGateway
+		//if zone.ZoneId == "cn-hangzhou-b" || zone.ZoneId == "cn-hangzhou-d" || zone.ZoneId == "cn-hangzhou-e" || zone.ZoneId == "cn-hangzhou-f" {
+		if zone.ZoneId == "cn-hangzhou-d" {
+			continue
+		}
+		klog.Infof("Start to create vsw in %s", zone.ZoneId)
+		req := vpc.CreateCreateVSwitchRequest()
+		req.VpcId = vpcId
+		req.ZoneId = zone.ZoneId
+		req.CidrBlock = fmt.Sprintf("192.168.%d.0/24", key)
+		req.VSwitchName = fmt.Sprintf("Pal-Vsw-%s", req.ZoneId)
+
+		resp, err := am.openAPIService.CreateVSwitch(req)
+		if err != nil {
+			klog.Errorf("failed to create vswitch in zone %s, err: %v", req.ZoneId, err)
+			//continue
+			return nil, err
+		}
+		if resp == nil || resp.VSwitchId == "" {
+			klog.Warningf("failed to create vswitch in zone %s, as empty resp", req.ZoneId)
+			//continue
+			return nil, fmt.Errorf("failed to create vswitch in zone %s, as empty resp", req.ZoneId)
+		}
+		klog.Infof("Succeed to create vsw in %s id %s", zone.ZoneId, resp.VSwitchId)
+		vswIds = append(vswIds, &(resp.VSwitchId))
+	}
+	//time.Sleep(60 * time.Second)
+
+	return vswIds, nil
+}
+
 func (am *AlibabaCloudManager) CreateCluster(options cloudprovider.ClusterOptions) (cloudprovider.KubernetesCluster, error) {
 	req := am.initCreateClusterConfig(options)
+	if req == nil {
+		return nil, fmt.Errorf("failed to initCreateClusterConfig")
+	}
+	bytes, _ := json.Marshal(*req)
+	klog.Infof("Start to create cluster use vpc %s, req %s", *req.Vpcid, string(bytes))
 	resp, err := am.openAPIService.CreateCluster(req)
 	if err != nil {
 		klog.Errorf("failed to create cluster, err %v", err)
