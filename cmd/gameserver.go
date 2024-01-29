@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/CloudNativeGame/palworld-okg-playground/pkg/cluster"
+	"github.com/CloudNativeGame/palworld-okg-playground/pkg/env"
 	"github.com/CloudNativeGame/palworld-okg-playground/pkg/gameserver"
 	"github.com/liushuochen/gotable"
 	gamekruisev1alpha1 "github.com/openkruise/kruise-game/apis/v1alpha1"
 	"github.com/spf13/cobra"
-	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"k8s.io/klog/v2"
 	"sort"
 	"time"
 )
@@ -19,14 +20,21 @@ var gameserverCmd = &cobra.Command{
 	Long:  `Manage PalWorld game servers`,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		config := config.GetConfigOrDie()
-		clusterId := ctx.Value("clusterId")
-		if clusterId != nil {
-			clusterManager := ctx.Value("clusterManager").(*cluster.ClusterManager)
-			config = clusterManager.GetKubernetesConfig()
+		clusterManager, err := cluster.NewClusterManager()
+		if err != nil {
+			klog.Errorf("failed to create cluster manager, err: %s", err.Error())
+			return
+		}
+		ctx = context.WithValue(ctx, "clusterManager", clusterManager)
+
+		envFile := env.NewEnvFile()
+		clusterId, lbId := envFile.GetDefaultId()
+		config, err := clusterManager.GetKubernetesConfig(clusterId)
+		if err != nil {
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "can not get cluster %s kubeconfig, because %s. \n", clusterId, err.Error())
 		}
 
-		gameserverManager := gameserver.NewGameServerManager(config, "")
+		gameserverManager := gameserver.NewGameServerManager(config, lbId)
 		gameserverManager.EnsureOKGInstalled()
 		ctx = context.WithValue(ctx, "gameserverManager", gameserverManager)
 		cmd.SetContext(ctx)

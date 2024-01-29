@@ -1,8 +1,6 @@
 package cloudprovider
 
-import (
-	restclient "k8s.io/client-go/rest"
-)
+import restclient "k8s.io/client-go/rest"
 
 type CloudProvider interface {
 	CreateCluster(options ClusterOptions) (KubernetesCluster, error)
@@ -10,6 +8,8 @@ type CloudProvider interface {
 	DeleteCluster(clusterId string) error
 	GetCluster(clusterId string) (KubernetesCluster, error)
 	GetKubernetesConfig(clusterId string) (*restclient.Config, error)
+	GetClusterState(clusterId string) (string, error)
+	CreateGameServerLoadBalancer() (string, error)
 }
 
 type KubernetesCluster interface {
