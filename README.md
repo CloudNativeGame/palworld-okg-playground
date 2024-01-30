@@ -1,5 +1,5 @@
 # palworld-okg-playground
-一起去palworld捕获一直帕鲁吧。
+一起去palworld捕获一只帕鲁吧。
 
 ## 编译打包
 
