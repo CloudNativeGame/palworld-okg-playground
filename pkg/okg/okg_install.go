@@ -41,7 +41,7 @@ func InstallOpenKruiseGame(config *rest.Config) error {
 	kruiseRequest := &DeployRequest{
 		RepoURL:      "https://openkruise.github.io/charts/",
 		ChartName:    "kruise",
-		ChartVersion: "1.5.1",
+		ChartVersion: "1.5.2",
 		Namespace:    "default",
 		ReleaseName:  "kruise",
 		config:       config,

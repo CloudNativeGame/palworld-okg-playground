@@ -30,7 +30,7 @@ func (cc *CloudConfig) ApplyDefaults() {
 	if cc.RegionId == "" {
 		cc.RegionId = os.Getenv(regionId)
 	}
-	klog.Infof("get config from env %++v", *cc)
+	//klog.Infof("get config from env %++v", *cc)
 }
 
 func (cc *CloudConfig) IsValid() bool {

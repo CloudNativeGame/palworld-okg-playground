@@ -3,7 +3,7 @@ package cluster
 import (
 	"github.com/CloudNativeGame/palworld-okg-playground/cloudprovider"
 	"github.com/CloudNativeGame/palworld-okg-playground/cloudprovider/alibabacloud"
-	"k8s.io/client-go/rest"
+	restclient "k8s.io/client-go/rest"
 )
 
 func NewClusterManager() (*ClusterManager, error) {
@@ -25,6 +25,14 @@ func (cm *ClusterManager) DeleteCluster() error {
 	return nil
 }
 
-func (cm *ClusterManager) GetKubernetesConfig() *rest.Config {
-	return nil
+func (cm *ClusterManager) GetKubernetesConfig(clusterId string) (*restclient.Config, error) {
+	return cm.provider.GetKubernetesConfig(clusterId)
+}
+
+func (cm *ClusterManager) GetClusterState(clusterId string) (string, error) {
+	return cm.provider.GetClusterState(clusterId)
+}
+
+func (cm *ClusterManager) CreateGameServerLoadBalancer() (string, error) {
+	return cm.provider.CreateGameServerLoadBalancer()
 }

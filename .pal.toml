@@ -1,0 +1,6 @@
+[[cluster]]
+  default = false
+  id = "xxx"
+  name = "xxx"
+  gs_lb_id = "lb-xxx"
+

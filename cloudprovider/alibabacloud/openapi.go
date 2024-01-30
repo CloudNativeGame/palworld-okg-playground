@@ -4,6 +4,7 @@ import (
 	"fmt"
 	cs "github.com/alibabacloud-go/cs-20151215/v4/client"
 	apiconf "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"k8s.io/klog/v2"
 	"time"
@@ -17,11 +18,13 @@ const (
 type openAPIService interface {
 	vpcService
 	ackService
+	slbService
 }
 
 type openAPIServiceImpl struct {
 	vpcService
 	ackService
+	slbService
 	cfg *CloudConfig
 }
 
@@ -41,6 +44,16 @@ type ackService interface {
 	ScaleClusterNodePool(ClusterId *string, NodepoolId *string, request *cs.ScaleClusterNodePoolRequest) (*cs.ScaleClusterNodePoolResponse, error)
 	ModifyClusterNodePool(ClusterId *string, NodepoolId *string, request *cs.ModifyClusterNodePoolRequest) (*cs.ModifyClusterNodePoolResponse, error)
 	DescribeTaskInfo(taskId *string) (*cs.DescribeTaskInfoResponse, error)
+	DescribeClusterUserKubeconfig(ClusterId *string, request *cs.DescribeClusterUserKubeconfigRequest) (*cs.DescribeClusterUserKubeconfigResponse, error)
+	DescribeClusterDetail(ClusterId *string) (*cs.DescribeClusterDetailResponse, error)
+}
+
+type slbService interface {
+	CreateLoadBalancer(*slb.CreateLoadBalancerRequest) (*slb.CreateLoadBalancerResponse, error)
+}
+
+type slbServiceImpl struct {
+	*slb.Client
 }
 
 type vpcServiceImpl struct {
@@ -102,6 +115,13 @@ func (openAPI *openAPIServiceImpl) refreshClient() (err error) {
 	//	return err
 	//}
 	//openAPI.ecsService = &ecsServiceImpl{ecsClient}
+
+	slbClient, err := slb.NewClientWithAccessKey(region, accessKeyId, accessKeySecret)
+	if err != nil {
+		klog.Errorf("failed to create slb client,Because of %s", err.Error())
+		return err
+	}
+	openAPI.slbService = &slbServiceImpl{slbClient}
 
 	vpcClient, err := vpc.NewClientWithAccessKey(region, accessKeyId, accessKeySecret)
 	if err != nil {
